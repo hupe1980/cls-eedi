@@ -62,10 +62,10 @@ jobs:
           PYTHON
       - uses: taiki-e/install-action@v2
         with:
-          tool: cargo-audit,actionlint
+          tool: cargo-audit
       - name: Check workflow definitions and formula renderer
         run: |
-          actionlint
+          go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           shellcheck packaging/homebrew/formula.sh
           digest=$(sha256sum target/package/cls-eedi-*.crate | cut -d' ' -f1)
           packaging/homebrew/formula.sh 1.2.3 "$digest" | ruby -c
