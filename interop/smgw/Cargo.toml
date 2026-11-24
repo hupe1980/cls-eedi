@@ -1,0 +1,15 @@
+[package]
+name = "cls-eedi-smgw-interop"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[workspace]
+
+[dev-dependencies]
+cls-eedi = { path = "../..", features = ["mqtt"] }
+smgw-cls = { version = "0.5", features = ["runtime"] }
+openssl = "0.10"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "io-util", "time", "macros"] }
+tempfile = "3"
+uuid = { version = "1", features = ["v4"] }

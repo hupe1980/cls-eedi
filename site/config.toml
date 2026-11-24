@@ -1,0 +1,5 @@
+base_url = "https://hupe1980.github.io/cls-eedi"
+title = "cls-eedi"
+description = "Rust developer guide for grid backends and local devices using CLS.EEDI."
+minify_html = true
+generate_sitemap = true

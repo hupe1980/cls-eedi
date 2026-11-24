@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="wrap layout"><aside><nav aria-label="Documentation"><a class="navtitle" href="../">Documentation</a><ul>{% set guide = get_section(path="guide/_index.md") %}{% for item in guide.pages %}<li><a href="../{{ item.slug }}/" {% if item.slug == page.slug %}aria-current="page"{% endif %}>{{ item.title }}</a></li>{% endfor %}</ul></nav></aside>
+<main id="main" class="article"><h1>{{ page.title }}</h1><p class="intro">{{ page.description }}</p>
+<nav class="contents" aria-label="On this page"><strong>On this page</strong><ul>{% for h in page.toc %}<li><a href="#{{ h.id }}">{{ h.title }}</a></li>{% endfor %}</ul></nav>
+{{ page.content | safe }}</main></div>
+{% endblock %}

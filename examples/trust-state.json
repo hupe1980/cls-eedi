@@ -1,0 +1,28 @@
+{
+  "specversion": "1.0",
+  "type": "de.keo-connectivity.clseedi.state",
+  "source": "demo-local",
+  "id": "demo-readback",
+  "data": {
+    "protocol": "1.2.0",
+    "timestamp": 1800000000,
+    "trust": [
+      { "ski": "1111111111111111111111111111111111111111" },
+      {
+        "shipPairingService": {
+          "forId": "demo-pending",
+          "forPar": "2222222222222222222222222222222222222222222222222222222222222222",
+          "secret": "00000000000000000000000000000000"
+        }
+      },
+      {
+        "shipPairingService": {
+          "forId": "demo-established",
+          "forPar": "3333333333333333333333333333333333333333333333333333333333333333",
+          "secret": "00000000000000000000000000000000",
+          "ski": "4444444444444444444444444444444444444444"
+        }
+      }
+    ]
+  }
+}

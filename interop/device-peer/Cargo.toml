@@ -1,0 +1,10 @@
+[package]
+name = "cls-eedi-device-peer-check"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+cls-eedi = { path = "../..", features = ["mqtt"] }

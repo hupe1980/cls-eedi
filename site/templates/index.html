@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<main id="main">
+<section class="hero"><div class="wrap split">
+<div><p class="kicker">KEO CLS.EEDI 1.2.0</p><h1>Grid control<br>in <em>Rust.</em></h1>
+<p class="lead">Connect a grid backend to local energy equipment. Send power limits, read meters and track each command through equipment acceptance.</p>
+<div class="actions"><a class="button" href="guide/getting-started/">Get started</a><a class="secondary" href="api/cls_eedi/index.html">Explore the Rust API</a></div></div>
+<figure class="trace"><figcaption><span>Consumption limit</span><span>Simulated exchange</span></figcaption>
+<p class="reading">4,200 <small>W</small></p>
+<div class="plot" aria-hidden="true"><div class="signal"></div></div>
+<dl class="timing"><div><dt>Requested</dt><dd>60 s</dd></div><div><dt>Readback at</dt><dd>10 s</dd></div><div><dt>Remaining</dt><dd>50 s</dd></div></dl>
+</figure></div></section>
+<section class="wrap start"><div><h2>Use cls-eedi in your project</h2><p>The default build includes the protocol engine. Enable MQTT or EEBUS when you connect a broker or equipment.</p></div>
+<div class="terminal"><span>Add the Rust library</span><pre><code>cargo add cls-eedi</code></pre></div></section>
+<section class="wrap topics"><h2>Integration guides</h2><div class="links">
+{% set guide = get_section(path="guide/_index.md") %}{% for item in guide.pages %}<a href="guide/{{ item.slug }}/"><h3>{{ item.title }}</h3><p>{{ item.description }}</p></a>{% endfor %}</div></section>
+</main>
+{% endblock %}

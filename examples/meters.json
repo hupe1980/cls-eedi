@@ -1,0 +1,18 @@
+{
+  "specversion": "1.0",
+  "type": "de.keo-connectivity.clseedi.state",
+  "source": "site-reader",
+  "id": "morning-meter-read",
+  "data": {
+    "protocol": "1.2.0",
+    "timestamp": 1800000000,
+    "measurements": [
+      {
+        "id": "grid-east",
+        "source": "gcp",
+        "frequency": { "value": { "number": 4998, "scale": -2 } },
+        "power": { "total": { "value": { "number": -1255, "scale": -1 } } }
+      }
+    ]
+  }
+}

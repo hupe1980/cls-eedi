@@ -1,0 +1,16 @@
+[package]
+name = "cls-eedi-eebus-interop"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[workspace]
+
+[dependencies]
+cls-eedi = { path = "../..", features = ["eebus", "eebus-pairing"] }
+eebus = { version = "=0.14.0", default-features = false, features = ["runtime", "aws-lc-rs", "pairing"] }
+
+[dev-dependencies]
+hex = "0.4"
+mdns-sd = { version = "0.21.7", default-features = false }
+tokio = { version = "1", features = ["rt", "macros", "time", "net"] }

@@ -1,0 +1,86 @@
+name: CI
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: rustup component add rustfmt clippy
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-features --all-targets -- -D warnings
+      - run: cargo test --locked --no-default-features
+      - name: Verify optional transport and adapter independently
+        run: |
+          cargo check --locked --features mqtt --all-targets
+          cargo test --locked --features eebus
+          cargo check --locked --features eebus-pairing --all-targets
+          cargo tree --locked --no-default-features --edges normal --prefix none > "$RUNNER_TEMP/core-dependencies"
+          if grep -Eq '^eebus v' "$RUNNER_TEMP/core-dependencies"; then exit 1; fi
+          cargo tree --locked --features eebus --edges normal --prefix none > "$RUNNER_TEMP/adapter-dependencies"
+          if grep -Eq '^(tokio|rumqttc-v5-next|rustls|aws-lc-rs) v' "$RUNNER_TEMP/adapter-dependencies"; then exit 1; fi
+      - run: cargo test --locked --all-features
+      - name: Verify recovery across process termination
+        run: python3 interop/restart/check.py
+      - run: cargo doc --locked --all-features --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+      - name: Verify publishable contents
+        run: |
+          mkdir -p concepts
+          echo 'private package boundary fixture' > concepts/README.md
+          cargo package --locked --list > "$RUNNER_TEMP/package-files"
+          if grep -Eq '^(concepts|specs|\.specify|\.agents|interop|site)/' "$RUNNER_TEMP/package-files"; then exit 1; fi
+          cargo package --locked
+          version=$(python3 -c 'import tomllib; print(tomllib.load(open("Cargo.toml", "rb"))["package"]["version"])')
+          manifest="target/package/cls-eedi-$version/Cargo.toml"
+          cargo test --locked --all-features --manifest-path "$manifest"
+          for mode in complete missing; do
+            set --
+            if [[ "$mode" == missing ]]; then set -- --missing; fi
+            cargo run --quiet --locked --manifest-path "$manifest" --example fleet_power -- "$@" |
+              cargo run --quiet --locked --manifest-path "$manifest" -- meters > "$RUNNER_TEMP/$mode.json"
+          done
+          python3 - "$RUNNER_TEMP" <<'PYTHON'
+          import json, pathlib, sys
+          root = pathlib.Path(sys.argv[1])
+          complete, missing = (json.loads((root / f"{name}.json").read_text()) for name in ("complete", "missing"))
+          assert complete["meterCount"] == missing["meterCount"] == 1
+          assert [(r["property"], r["value"], r["unit"]) for r in complete["rows"]] == [("power.total", "1425.25", "W")]
+          assert missing["rows"] == []
+          PYTHON
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit,actionlint
+      - name: Check workflow definitions and formula renderer
+        run: |
+          actionlint
+          shellcheck packaging/homebrew/formula.sh
+          digest=$(sha256sum target/package/cls-eedi-*.crate | cut -d' ' -f1)
+          packaging/homebrew/formula.sh 1.2.3 "$digest" | ruby -c
+      - run: scripts/check-mqtt.sh --with-smgw
+      - name: Audit library and integration dependencies
+        run: |
+          cargo audit --deny warnings
+          for lock in interop/*/Cargo.lock; do cargo audit --no-fetch --deny warnings -f "$lock"; done
+      - name: Check standalone interoperability harnesses
+        run: |
+          for manifest in interop/*/Cargo.toml; do
+            cargo fmt --manifest-path "$manifest" --check
+            cargo clippy --locked --manifest-path "$manifest" --all-targets -- -D warnings
+          done
+          cargo test --locked --manifest-path interop/eebus/Cargo.toml
+      - uses: astral-sh/setup-uv@v6
+      - name: Verify controls and settings reads against software peers
+        run: uv run --locked --python 3.13 --script interop/device-peer/check.py
+      - name: Validate pinned KEO reference examples
+        run: |
+          git clone --depth 1 --branch 1.2.0 https://github.com/KEO-cls-eedi/specification.git "$RUNNER_TEMP/keo"
+          uv run --script scripts/check-reference.py "$RUNNER_TEMP/keo"

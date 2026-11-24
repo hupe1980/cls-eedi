@@ -1,0 +1,44 @@
+[package]
+name = "cls-eedi"
+version = "0.1.0"
+edition = "2021"
+description = "Rust protocol engine for KEO CLS.EEDI grid-device messaging"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/hupe1980/cls-eedi"
+homepage = "https://hupe1980.github.io/cls-eedi/"
+documentation = "https://docs.rs/cls-eedi"
+readme = "README.md"
+include = ["/src/**", "/examples/**", "/benches/**", "/tests/**", "/README.md", "/CHANGELOG.md", "/LICENSE-MIT", "/LICENSE-APACHE", "/Cargo.lock"]
+
+[package.metadata.docs.rs]
+all-features = true
+
+[features]
+default = []
+eebus = ["dep:eebus"]
+eebus-pairing = ["eebus", "eebus/runtime", "eebus/pairing", "eebus/aws-lc-rs"]
+mqtt = ["dep:futures-util", "dep:rumqttc", "dep:tokio", "dep:uuid"]
+
+[dependencies]
+eebus = { version = "0.14.0", default-features = false, optional = true }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["raw_value", "arbitrary_precision"] }
+thiserror = "2"
+semver = "1"
+futures-util = { version = "0.3", default-features = false, features = ["alloc"], optional = true }
+tokio = { version = "1", features = ["net", "rt", "time"], optional = true }
+rumqttc = { package = "rumqttc-v5-next", version = "0.34", default-features = false, features = ["stream", "use-rustls-aws-lc"], optional = true }
+uuid = { version = "1", features = ["v4"], optional = true }
+sha2 = "0.10"
+
+[[example]]
+name = "mqtt_device"
+required-features = ["mqtt"]
+
+[[bench]]
+name = "codec"
+harness = false
+
+[[example]]
+name = "mqtt_read"
+required-features = ["mqtt"]
